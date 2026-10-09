@@ -263,85 +263,36 @@ async function clima(){
 }
 clima(); setInterval(clima, REFRESCO_MIN*60*1000);
 
-/* ====== NOTICIAS (lectura del RSS del sitio) ====== */
-const FEED_URL = 'https://www.aenverde.es/titulares/feed';
-const FEEDS = [FEED_URL, 'https://www.aenverde.es/feed/'];
+/* ====== NOTICIAS ====== */
+// noticias.json lo genera y actualiza automáticamente GitHub Actions a partir del feed de aenverde.es
+const NOTICIAS_JSON = 'noticias.json';
 const NUM_NOTICIAS = 3, REFRESCO_NOTICIAS_MIN = 10;
-let feedOk = null, vistas = null;
-
-// Formas de llegar al feed: directa y a través de distintos servicios públicos (por si el navegador bloquea la conexión directa)
-const RUTAS = [
-  ...(location.protocol.startsWith('http') ? [['servidor', u => '/api/noticias']] : []),
-  ['directa',    u => u],
-  ['allorigins', u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)],
-  ['corsproxy',  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u)],
-  ['codetabs',   u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)]
-];
-const decodificar = t => { const e = document.createElement('textarea'); e.innerHTML = t; return e.value.trim(); };
-
-function leerXml(texto){
-  const xml = new DOMParser().parseFromString(texto, 'text/xml');
-  return [...xml.querySelectorAll('item, entry')].map(n => {
-    const q = t => (n.querySelector(t)?.textContent || '').trim();
-    const l = n.querySelector('link');
-    return {
-      id: q('guid') || q('id') || (l?.getAttribute('href') || l?.textContent || '').trim() || q('title'),
-      titulo: decodificar(q('title')),
-      fecha: new Date(q('pubDate') || q('published') || q('updated') || q('date'))
-    };
-  }).filter(x => x.titulo);
-}
-
-async function leerFeed(u, fallos){
-  for(const [nombre, ruta] of RUTAS){
-    try{
-      const r = await fetch(ruta(u), {cache:'no-store'});
-      if(!r.ok){
-        const detalle = nombre === 'servidor' ? (await r.text()).slice(0,160) : '';
-        throw new Error('HTTP ' + r.status + (detalle ? ' – ' + detalle : ''));
-      }
-      const lista = leerXml(await r.text());
-      if(!lista.length) throw new Error('respuesta sin noticias');
-      return lista;
-    }catch(e){ fallos.push(nombre + ': ' + e.message); }
-  }
-  try{   // último recurso: conversor RSS→JSON
-    const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(u));
-    const j = await r.json();
-    if(j.status !== 'ok' || !j.items?.length) throw new Error(j.message || 'sin noticias');
-    return j.items.map(x => ({
-      id: x.guid || x.link || x.title,
-      titulo: decodificar(x.title),
-      fecha: new Date((x.pubDate || '').replace(' ', 'T') + 'Z')
-    }));
-  }catch(e){ fallos.push('rss2json: ' + e.message); }
-  return null;
-}
+let vistas = null;
 
 async function noticias(){
-  let lista = null; const fallos = [];
-  for(const u of (feedOk ? [feedOk] : FEEDS)){
-    lista = await leerFeed(u, u === FEEDS[0] ? fallos : []);
-    if(lista){ feedOk = u; break; }
-  }
   const caja = document.getElementById('noticias');
-  if(!lista){
-    if(!caja.querySelector('.nt')){
-      caja.innerHTML = '<div class="nt-vacio">No se han podido cargar las noticias.<br><small></small></div>';
-      caja.querySelector('small').textContent = (location.protocol === 'file:' ? 'Abre el dashboard con servidor.py (http://localhost:8000). ' : '') + fallos.join(' · ');
-    }
+  let lista;
+  try{
+    const r = await fetch(NOTICIAS_JSON + '?t=' + Date.now(), {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    lista = (await r.json()).items.map(x => ({id:x.id, titulo:x.titulo, fecha:new Date(x.fecha)}));
+  }catch(e){
+    if(!caja.querySelector('.nt')) caja.innerHTML = '<div class="nt-vacio">No se han podido cargar las noticias.</div>';
+    return;
+  }
+  if(!lista.length){
+    if(!caja.querySelector('.nt')) caja.innerHTML = '<div class="nt-vacio">Todavía no hay noticias.</div>';
     return;
   }
   lista.sort((a,b) => (b.fecha||0) - (a.fecha||0));
   lista = lista.slice(0, NUM_NOTICIAS);
-  const ids = lista.map(x => x.id);
   caja.innerHTML = lista.map(x => {
     const nueva = vistas && !vistas.has(x.id);
     const f = isNaN(x.fecha) ? '' : x.fecha.toLocaleDateString('es-ES',{day:'numeric',month:'short',timeZone:TZ}).replace('.','');
     return `<div class="nt${nueva?' nueva':''}"><time>${f}</time><span></span></div>`;
   }).join('');
   [...caja.querySelectorAll('.nt span')].forEach((el,i) => el.textContent = lista[i].titulo);
-  vistas = new Set([...(vistas||[]), ...ids]);
+  vistas = new Set([...(vistas||[]), ...lista.map(x => x.id)]);
 }
 noticias(); setInterval(noticias, REFRESCO_NOTICIAS_MIN*60*1000);
 </script>
