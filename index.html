@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Coexphal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Paleta tomada del logo */
+  :root{
+    --turquesa:#009fae;
+    --carmesi:#d21146;
+    --tinta:#221e20;
+    --fondo:#ffffff;
+    --blanco:#ffffff;
+    --apagado:#4b5d61;
+    --linea:#d3e0e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#000;overflow:hidden}
+  body{display:flex;align-items:center;justify-content:center}
+
+  #stage{
+    width:688px;height:1032px;flex:none;transform-origin:center center;
+    background:var(--fondo);color:var(--tinta);
+    font-family:"Poppins","Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+    font-kerning:normal;
+    display:flex;flex-direction:column;position:relative;overflow:hidden;
+  }
+
+  /* Cabecera con logo */
+  .logo{
+    background:var(--blanco);height:130px;flex:none;
+    display:flex;align-items:center;justify-content:center;padding:0 48px;
+    position:relative;
+  }
+  .logo svg{width:100%;height:auto;max-height:84px}
+
+  /* Reloj */
+  .reloj{background:var(--blanco);color:var(--tinta);text-align:center;padding:26px 0 22px;flex:none;position:relative}
+  .logo::after,.reloj::after{content:"";position:absolute;left:48px;right:48px;bottom:0;height:1px;background:var(--linea)}
+  .hora{font-size:140px;line-height:1;font-weight:400;letter-spacing:-3px;font-variant-numeric:proportional-nums lining-nums}
+  .fecha{margin-top:8px;font-size:26px;color:var(--apagado);text-transform:capitalize}
+
+  /* Clima */
+  .clima{flex:none;display:flex;flex-direction:column;padding:20px 48px 16px}
+  .ciudad{display:flex;justify-content:space-between;align-items:baseline;font-size:22px;color:var(--apagado)}
+  .ciudad b{color:var(--tinta);font-weight:700;font-size:26px}
+  .ciudad .mx{color:var(--carmesi);font-weight:600}
+  .ciudad .mn{color:var(--turquesa);font-weight:600}
+  .actual{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+  .temp{font-size:96px;font-weight:300;line-height:1;letter-spacing:-4px}
+  .temp sup{font-size:38px;color:var(--carmesi);font-weight:400;letter-spacing:0;vertical-align:top;position:relative;top:10px}
+  .icono{font-size:80px;line-height:1}
+  .desc{font-size:24px;margin-top:2px}
+  .datos{display:flex;gap:22px;margin-top:6px;font-size:19px;color:var(--apagado)}
+  .datos b{color:var(--tinta);font-weight:700}
+
+  .horas{display:flex;justify-content:space-between;margin-top:14px;padding:10px 0;border-top:2px solid var(--linea);border-bottom:2px solid var(--linea)}
+  .h{flex:1;text-align:center;font-size:18px;color:var(--apagado)}
+  .h .e{font-size:28px;margin:3px 0}
+  .h .t{font-size:22px;color:var(--tinta);font-weight:700}
+
+  .dias{display:flex;flex-direction:column;margin-top:4px}
+  .d{display:grid;grid-template-columns:150px 50px 1fr auto;align-items:center;gap:10px;padding:6px 0;font-size:21px}
+  .d + .d{border-top:1px solid var(--linea)}
+  .d .n{text-transform:capitalize}
+  .d .e{font-size:26px}
+  .d .p{color:var(--turquesa);font-size:18px;font-weight:600}
+  .d .m{font-weight:700;color:var(--carmesi)}
+  .d .m i{font-style:normal;color:var(--turquesa);font-weight:600;margin-right:10px}
+
+  /* Noticias */
+  .noticias{flex:1;min-height:0;position:relative;padding:16px 48px 20px;display:flex;flex-direction:column;overflow:hidden}
+  .noticias::before{content:"";position:absolute;left:48px;right:48px;top:0;height:1px;background:var(--linea)}
+  .nt-cab{display:flex;justify-content:space-between;align-items:baseline;font-size:18px;color:var(--apagado)}
+  .nt-cab b{color:var(--tinta);font-size:22px;font-weight:700}
+  .nt-lista{display:flex;flex-direction:column;gap:9px;margin-top:8px;min-height:0}
+  .nt{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start}
+  .nt time{font-size:16px;color:var(--turquesa);font-weight:600;padding-top:3px;line-height:1.2}
+  .nt span{font-size:19px;line-height:1.25;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .nt.nueva time{color:var(--carmesi)}
+  .nt.nueva span::before{content:"Nueva";display:inline-block;margin-right:8px;padding:0 7px;border-radius:9px;background:var(--carmesi);color:#fff;font-size:13px;font-weight:600;vertical-align:2px}
+  .nt-vacio{font-size:18px;color:var(--apagado);margin-top:10px}
+  .nt-vacio small{display:block;margin-top:6px;font-size:12px;line-height:1.3;opacity:.8}
+
+  .estado{position:absolute;right:48px;bottom:10px;font-size:14px;color:var(--apagado)}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <header class="logo" id="logo">
+    <svg role="img" aria-label="Coexphal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.59 73.28">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #d21146;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #221e20;
+      }
+
+      .cls-3 {
+        fill: #009fae;
+      }
+    </style>
+  </defs>
+  <g id="Capa_1-2" data-name="Capa 1">
+    <g>
+      <g>
+        <path class="cls-1" d="M51.64,59.63h-.68v5.58c0,.46-.09.9-.26,1.29-.17.4-.39.74-.69,1.02-.3.27-.65.5-1.05.68-.41.14-.86.23-1.32.23-.49,0-.93-.09-1.35-.23-.38-.17-.74-.4-1.02-.68-.3-.28-.55-.61-.71-1.02-.15-.39-.25-.83-.25-1.29v-5.58h-.69v5.58c0,.57.11,1.08.3,1.55.21.47.48.86.83,1.23.36.33.79.61,1.26.8.49.19,1.02.28,1.62.28.73,0,1.4-.16,1.98-.46.57-.32,1.03-.75,1.35-1.28v1.53h.68v-9.24Z"/>
+        <path class="cls-1" d="M61.77,63.3c0-1.22-.35-2.15-1.03-2.85-.67-.71-1.63-1.04-2.85-1.04-.78,0-1.46.16-2.06.48-.6.32-1.05.75-1.4,1.3v-1.55h-.68v9.24h.68v-5.57c0-.45.1-.91.25-1.29.21-.41.43-.75.72-1.04.33-.31.69-.52,1.11-.67.41-.17.87-.25,1.35-.25,1.04,0,1.84.3,2.38.87.57.57.84,1.36.84,2.38v5.57h.69v-5.57Z"/>
+        <path class="cls-1" d="M64.57,56.44h-.68v1.63h.68v-1.63ZM64.57,59.63h-.68v9.24h.68v-9.24Z"/>
+        <path class="cls-1" d="M75.45,55.52h-.69v6.35c-.4-.72-.95-1.31-1.66-1.77-.73-.48-1.52-.7-2.43-.7-.63,0-1.25.13-1.83.39-.59.25-1.07.59-1.52,1.03-.42.44-.77.98-1.01,1.55-.24.6-.38,1.24-.38,1.89s.13,1.29.38,1.88c.24.59.59,1.09,1.01,1.54.45.42.94.77,1.52,1.01.58.26,1.2.38,1.83.38.9,0,1.69-.21,2.43-.66.71-.46,1.26-1.05,1.66-1.76v2.2h.69v-13.34ZM74.76,64.27c0,.57-.12,1.13-.34,1.61-.2.51-.49.94-.86,1.33-.37.38-.79.68-1.3.88-.49.21-1.01.32-1.58.32s-1.06-.11-1.55-.32c-.5-.2-.93-.5-1.3-.88-.37-.39-.68-.82-.9-1.33-.2-.48-.3-1.03-.3-1.61s.1-1.11.3-1.61c.22-.52.53-.97.9-1.34.37-.37.8-.69,1.3-.9.49-.23,1.01-.34,1.55-.34.57,0,1.09.11,1.58.34.51.21.93.52,1.3.9.37.38.66.82.86,1.34.22.5.34,1.05.34,1.61"/>
+        <path class="cls-1" d="M81.48,59.4c-.66,0-1.28.13-1.85.39-.56.25-1.06.59-1.49,1.03-.44.44-.78.98-1.03,1.55-.25.6-.37,1.24-.37,1.89s.12,1.29.37,1.88c.25.59.59,1.09,1.03,1.54.43.42.93.77,1.49,1.01.58.26,1.2.38,1.85.38s1.27-.12,1.86-.38c.58-.24,1.08-.59,1.5-1.01.45-.45.77-.95,1.02-1.54.27-.59.39-1.21.39-1.88s-.12-1.29-.39-1.89c-.25-.57-.57-1.12-1.02-1.55-.43-.44-.92-.79-1.5-1.03-.59-.27-1.2-.39-1.86-.39M81.48,68.46c-.56,0-1.08-.11-1.58-.33-.49-.23-.94-.52-1.3-.9-.37-.4-.66-.82-.89-1.32-.21-.51-.31-1.07-.31-1.64s.09-1.14.31-1.67c.23-.48.52-.95.89-1.32.36-.4.81-.69,1.3-.93.5-.22,1.02-.32,1.58-.32s1.11.1,1.59.32c.49.24.93.52,1.3.93.37.37.65.84.88,1.32.19.53.3,1.09.3,1.67s-.11,1.13-.3,1.64c-.23.5-.51.92-.88,1.32-.37.38-.81.66-1.3.9-.48.22-1.02.33-1.59.33"/>
+        <path class="cls-1" d="M95.02,66.26c-.02-.47-.14-.85-.37-1.16-.22-.32-.51-.57-.86-.75-.36-.2-.78-.38-1.26-.48-.45-.11-.92-.21-1.41-.26-1.07-.15-1.83-.33-2.35-.57-.52-.22-.78-.59-.8-1.12,0-.27.07-.52.22-.74.14-.23.34-.43.61-.6.26-.18.56-.31.92-.4.36-.09.75-.13,1.18-.13.86,0,1.55.17,2.08.51.55.34.92.82,1.11,1.43h.71c-.22-.83-.65-1.47-1.31-1.94-.68-.41-1.53-.64-2.59-.64-.6,0-1.12.08-1.58.22-.44.13-.82.34-1.12.57-.31.23-.51.46-.7.82-.14.28-.21.59-.21.9,0,.46.13.83.37,1.12.23.26.52.5.87.67.36.15.76.26,1.19.34.46.09.87.16,1.29.2,1.15.19,1.99.42,2.51.75.51.3.78.72.8,1.28.04.49-.11.92-.46,1.28-.28.26-.66.49-1.12.66-.45.18-.96.26-1.55.26-1.01,0-1.84-.19-2.51-.57-.63-.4-1.04-.97-1.21-1.72h-.68c.16.95.64,1.67,1.42,2.18.78.48,1.8.73,3,.73.66,0,1.28-.09,1.8-.27.56-.19,1-.45,1.34-.8.23-.22.4-.52.53-.8.1-.31.17-.63.14-.95"/>
+        <path class="cls-1" d="M104.19,66.29c-.26.54-.65.96-1.12,1.26-.47.3-1.04.45-1.72.45-.4,0-.78-.07-1.14-.21-.38-.14-.73-.33-1.03-.61-.29-.25-.55-.57-.75-.95-.2-.37-.33-.82-.37-1.3h8.01c0-.82-.12-1.55-.4-2.2-.26-.62-.6-1.19-1.06-1.64-.44-.47-.96-.81-1.55-1.05-.58-.23-1.18-.35-1.8-.35-.66,0-1.29.13-1.86.38-.59.26-1.09.58-1.52,1.05-.44.43-.78.93-1.04,1.54-.24.58-.38,1.2-.38,1.87s.14,1.32.38,1.91c.27.59.6,1.1,1.04,1.53.44.41.96.76,1.55,1.01.59.25,1.24.38,1.93.38,1.12,0,2.05-.25,2.84-.79.77-.53,1.32-1.28,1.65-2.3h-1.65ZM98.16,63.57c.09-.4.24-.73.45-1.03.23-.35.48-.6.76-.82.28-.19.59-.36.9-.46.33-.13.67-.18.99-.18.34,0,.68.05,1,.18.33.1.64.28.9.49.27.23.51.49.71.8.21.31.36.64.45,1.02h-6.16Z"/>
+        <polygon class="cls-1" points="113.01 69.16 114.93 69.16 111.51 64.38 114.71 59.92 112.8 59.92 110.56 63.23 108.35 59.92 106.42 59.92 109.59 64.38 106.21 69.16 108.11 69.16 110.56 65.54 113.01 69.16"/>
+        <path class="cls-1" d="M125.4,64.51c0-.65-.12-1.27-.37-1.85-.24-.61-.56-1.11-.98-1.57-.42-.45-.92-.79-1.53-1.05-.58-.22-1.19-.35-1.9-.35s-1.31.17-1.9.5c-.58.34-1.04.74-1.37,1.19v-1.46h-1.51v13.36h1.56v-5.52c.34.44.8.84,1.34,1.15.58.31,1.2.47,1.88.47s1.32-.14,1.9-.39c.61-.25,1.11-.6,1.53-1.04.42-.44.74-.96.98-1.54.25-.59.37-1.23.37-1.91M123.83,64.51c0,.48-.09.93-.26,1.36-.16.4-.39.8-.67,1.1-.27.33-.62.55-1.02.74-.38.19-.78.28-1.25.28-.43,0-.85-.09-1.25-.28-.36-.18-.71-.41-1.02-.74-.29-.3-.52-.7-.69-1.1-.18-.42-.26-.88-.26-1.36s.09-.89.26-1.34c.17-.4.4-.77.69-1.06.31-.34.66-.57,1.02-.76.4-.18.81-.26,1.25-.26.47,0,.88.08,1.25.26.39.19.74.42,1.02.76.28.29.51.65.67,1.06.17.45.26.86.26,1.34"/>
+        <path class="cls-1" d="M130.96,59.69c-.68,0-1.31.13-1.89.38-.58.26-1.08.58-1.51,1.05-.42.43-.78.95-1.02,1.55-.24.6-.37,1.2-.37,1.88s.13,1.3.37,1.89c.25.57.6,1.09,1.02,1.53.44.42.93.76,1.51,1.01.59.25,1.21.38,1.89.38s1.31-.14,1.88-.38c.59-.25,1.09-.6,1.52-1.01.43-.44.77-.96,1.01-1.53.25-.58.38-1.21.38-1.89s-.13-1.29-.38-1.88c-.24-.6-.58-1.12-1.01-1.55-.43-.47-.93-.79-1.52-1.05-.57-.25-1.2-.38-1.88-.38M130.96,67.98c-.45,0-.87-.09-1.25-.28-.38-.18-.73-.4-1.02-.71-.28-.31-.51-.67-.69-1.11-.15-.4-.25-.84-.25-1.32s.1-.91.25-1.33c.18-.43.41-.81.69-1.12.29-.31.64-.56,1.02-.73.39-.2.81-.29,1.25-.29s.85.09,1.24.29c.39.17.74.42,1.04.73.31.3.53.68.69,1.12.17.42.25.86.25,1.33s-.08.92-.25,1.32c-.16.44-.38.8-.69,1.11-.29.31-.65.53-1.04.71-.39.19-.8.28-1.24.28"/>
+        <path class="cls-1" d="M145.16,63.61c0-.57-.08-1.11-.24-1.59-.15-.48-.4-.89-.72-1.24-.31-.33-.69-.61-1.14-.81-.46-.17-.98-.27-1.57-.27s-1.1.1-1.58.34c-.46.21-.86.5-1.19.89v-1h-1.52v9.23h1.58v-5.65c0-.34.06-.66.18-.95.12-.3.3-.55.52-.77.22-.23.48-.38.78-.5.32-.14.65-.2,1-.2.74,0,1.32.22,1.73.69.4.45.6,1.05.6,1.75v.69h1.55v-.62Z"/>
+        <path class="cls-1" d="M154.59,64.62h-1.55v.86c0,.71-.23,1.28-.69,1.75-.44.44-1.04.67-1.78.67-.37,0-.7-.06-1.02-.19-.29-.1-.55-.27-.78-.48-.21-.23-.38-.47-.51-.78-.12-.29-.17-.63-.17-.96v-4.1h6.44v-1.46h-6.44v-1.98h-1.56v7.54c0,.56.09,1.09.3,1.57.21.46.5.87.87,1.22.34.34.77.62,1.27.8.48.2,1.01.3,1.6.3s1.12-.1,1.61-.3c.5-.18.93-.46,1.27-.8.37-.36.65-.76.84-1.22.21-.48.3-1.02.3-1.57v-.86Z"/>
+        <path class="cls-1" d="M165.33,59.92h-1.52v1.46c-.33-.46-.79-.86-1.37-1.19-.59-.33-1.22-.5-1.93-.5s-1.33.13-1.9.38c-.59.26-1.07.58-1.52,1.05-.41.43-.77.93-.99,1.54-.25.58-.35,1.2-.35,1.87s.1,1.33.35,1.89c.22.58.58,1.11.99,1.56.45.43.93.77,1.52,1.04.58.25,1.23.36,1.9.36s1.34-.16,1.93-.48c.58-.35,1.04-.76,1.37-1.25v1.51h1.52v-9.23ZM163.75,64.56c0,.48-.09.91-.26,1.31-.16.41-.42.76-.69,1.09-.31.28-.65.52-1.05.69-.38.19-.78.29-1.24.29s-.85-.1-1.25-.29c-.39-.17-.74-.41-1.02-.69-.28-.33-.51-.68-.68-1.09-.17-.4-.24-.83-.24-1.31s.07-.91.24-1.32c.17-.42.39-.79.68-1.1.28-.3.63-.56,1.02-.73.4-.17.81-.25,1.25-.25s.86.08,1.24.25c.4.18.74.43,1.05.73.27.31.53.68.69,1.1.17.41.26.85.26,1.32"/>
+        <path class="cls-1" d="M175.43,63.61c0-.57-.08-1.11-.25-1.59-.16-.48-.39-.89-.72-1.24-.29-.33-.69-.61-1.14-.81-.46-.17-.97-.27-1.57-.27s-1.09.1-1.57.34c-.48.21-.87.5-1.19.89v-1h-1.53v9.23h1.57v-5.65c0-.34.06-.66.2-.95.12-.3.29-.55.51-.77.22-.23.49-.38.8-.5.31-.14.63-.2,1-.2.76,0,1.35.22,1.74.69.39.45.6,1.05.6,1.75v5.62h1.55v-5.55Z"/>
+        <path class="cls-1" d="M186.42,55.82h-1.58v5.5c-.35-.44-.81-.84-1.37-1.15-.55-.32-1.17-.47-1.87-.47s-1.31.13-1.9.38c-.58.26-1.1.58-1.51,1.05-.42.43-.76.95-1.01,1.55-.23.6-.34,1.2-.34,1.88s.11,1.3.34,1.89c.24.57.59,1.09,1.01,1.53.41.43.93.77,1.51,1.04.59.25,1.2.36,1.9.36s1.35-.16,1.93-.48c.59-.35,1.03-.76,1.37-1.25v1.51h1.52v-13.34ZM184.84,64.56c0,.48-.09.91-.27,1.31-.15.41-.41.76-.7,1.09-.29.28-.65.52-1.03.69-.38.19-.8.29-1.25.29s-.85-.1-1.26-.29c-.38-.17-.73-.41-1.02-.69-.28-.33-.49-.68-.68-1.09-.16-.4-.24-.83-.24-1.31s.08-.91.24-1.32c.18-.42.39-.79.68-1.1.29-.3.63-.56,1.02-.73.41-.17.82-.25,1.26-.25s.86.08,1.25.25c.39.18.74.43,1.03.73.29.31.54.68.7,1.1.18.41.27.85.27,1.32"/>
+        <path class="cls-1" d="M192.65,59.69c-.68,0-1.31.13-1.9.38-.56.26-1.07.58-1.5,1.05-.44.43-.77.95-1.01,1.55-.27.6-.38,1.2-.38,1.88s.11,1.3.38,1.89c.25.57.58,1.09,1.01,1.53.43.42.94.76,1.5,1.01.59.25,1.22.38,1.9.38s1.31-.14,1.9-.38c.58-.25,1.09-.6,1.51-1.01.44-.44.77-.96,1.01-1.53.25-.58.37-1.21.37-1.89s-.12-1.29-.37-1.88c-.24-.6-.57-1.12-1.01-1.55-.43-.47-.93-.79-1.51-1.05-.58-.25-1.21-.38-1.9-.38M192.65,67.98c-.44,0-.87-.09-1.25-.28-.4-.18-.72-.4-1.02-.71-.28-.31-.51-.67-.68-1.11-.16-.4-.24-.84-.24-1.32s.08-.91.24-1.33c.18-.43.41-.81.68-1.12.3-.31.62-.56,1.02-.73.39-.2.81-.29,1.25-.29s.85.09,1.25.29c.37.17.73.42,1.02.73.31.3.54.68.7,1.12.17.42.26.86.26,1.33s-.08.92-.26,1.32c-.16.44-.39.8-.7,1.11-.28.31-.64.53-1.02.71-.39.19-.81.28-1.25.28"/>
+        <path class="cls-1" d="M205.06,61.81h2.44v-.78c0-.58-.09-1.1-.28-1.59-.21-.49-.5-.95-.86-1.29-.35-.38-.8-.67-1.31-.87-.5-.19-1.07-.3-1.72-.3s-1.2.11-1.73.3c-.51.2-.96.5-1.34.87-.35.34-.62.8-.83,1.29-.21.49-.29,1.01-.29,1.59v8.38h2.44v-3.86h5.84v-2.21h-5.84v-2.42c0-.26.02-.44.09-.61.08-.22.19-.38.33-.56.16-.17.34-.29.56-.39.23-.09.48-.13.78-.13.31,0,.56.04.78.13.23.1.4.22.54.39.14.18.25.34.31.56.08.18.11.36.11.61v.89Z"/>
+        <path class="cls-1" d="M217.05,60.19h-2.44v5.4c0,.52-.18.92-.52,1.28-.33.35-.78.52-1.33.52-.38,0-.7-.06-.94-.2-.22-.13-.41-.29-.53-.49-.11-.2-.2-.41-.23-.61-.05-.21-.05-.35-.05-.49v-5.4h-2.45v5.4c0,.6.09,1.15.26,1.65.19.48.44.92.74,1.26.35.36.74.64,1.2.83.47.19.98.29,1.56.29.5,0,.95-.07,1.36-.25.41-.2.77-.47,1.06-.8v.83h2.33v-9.21Z"/>
+        <path class="cls-1" d="M226.97,64.81h-2.44v.87c0,.23-.04.44-.11.64-.06.19-.19.4-.32.55-.14.15-.31.29-.53.38-.23.1-.48.14-.78.14s-.58-.04-.81-.14c-.21-.08-.4-.23-.55-.38-.13-.15-.24-.36-.32-.55-.06-.21-.08-.42-.08-.64v-3.27h5.84v-2.21h-5.84v-2.36h-2.46v7.73c0,.6.11,1.14.31,1.63.2.51.48.93.83,1.31.37.35.8.63,1.34.83.5.21,1.1.3,1.73.3s1.22-.1,1.72-.3c.51-.2.95-.48,1.31-.83.36-.38.65-.8.85-1.31.2-.49.3-1.03.3-1.63v-.74Z"/>
+        <path class="cls-1" d="M236.65,60.19h-2.44v5.4c0,.52-.17.92-.52,1.28-.35.35-.78.52-1.34.52-.39,0-.71-.06-.93-.2-.24-.13-.41-.29-.55-.49-.12-.2-.21-.41-.22-.61-.05-.21-.07-.35-.07-.49v-5.4h-2.44v5.4c0,.6.1,1.15.26,1.65.19.48.44.92.76,1.26.34.36.72.64,1.18.83.47.19.99.29,1.56.29.5,0,.95-.07,1.36-.25.41-.2.75-.47,1.06-.8v.83h2.32v-9.21Z"/>
+        <path class="cls-1" d="M246.83,64.03c0-.63-.08-1.19-.27-1.69-.17-.49-.41-.92-.74-1.27-.32-.36-.74-.63-1.18-.83-.46-.21-.97-.29-1.52-.29s-.98.09-1.41.29c-.39.19-.74.49-1.05.83v-.89h-2.33v9.21h2.43v-5.37c0-.54.18-.99.53-1.33.33-.34.78-.52,1.35-.52.39,0,.71.06.95.21.25.14.42.3.52.5.13.19.19.4.25.62.04.2.06.35.06.51v.46h2.44v-.46Z"/>
+        <path class="cls-1" d="M252.17,59.96c-.68,0-1.3.12-1.88.36-.57.25-1.09.59-1.52,1.03-.41.41-.78.94-1.04,1.53-.23.58-.37,1.23-.37,1.92s.13,1.32.37,1.91c.26.59.62,1.11,1.04,1.53.43.44.94.78,1.52,1.03.58.23,1.2.35,1.88.35.64,0,1.27-.12,1.86-.35.58-.25,1.07-.6,1.51-1.03.45-.41.79-.94,1.05-1.53.25-.59.37-1.2.37-1.91s-.13-1.34-.37-1.92c-.25-.59-.6-1.12-1.05-1.53-.44-.44-.93-.79-1.51-1.03-.59-.24-1.23-.36-1.86-.36M252.17,67.46c-.32,0-.64-.06-.92-.16-.29-.14-.54-.33-.76-.56-.19-.24-.36-.53-.49-.84-.12-.31-.18-.67-.18-1.08s.05-.75.18-1.09c.13-.33.3-.64.49-.86.22-.24.47-.42.76-.56.28-.13.6-.19.92-.19s.61.06.9.19c.28.13.54.31.73.56.23.22.4.53.51.86.14.34.2.69.2,1.09s-.05.77-.2,1.08c-.12.31-.28.6-.51.84-.19.22-.44.42-.73.56-.29.1-.59.16-.9.16"/>
+      </g>
+      <path class="cls-2" d="M112.05,1.79l3.49,6.57c-.12.24-.24.42-.39.55-.17.11-.36.17-.57.17h-16.33v11.19h13.82c.21,0,.39.06.57.21.19.11.35.32.47.59.1.27.18.63.23,1.11.07.43.11.99.11,1.66s-.04,1.27-.11,1.7c-.04.45-.13.81-.23,1.09-.13.25-.29.46-.47.59-.18.1-.36.17-.57.17h-13.82v12.89h16.49c.2,0,.4.09.56.22l-3.47,7.07h-20.09c-.8,0-1.46-.22-2-.66-.51-.48-.78-1.22-.78-2.27V4.74c0-1.04.27-1.78.78-2.23.55-.48,1.2-.72,2-.72h20.32Z"/>
+      <path class="cls-2" d="M152.97,44.08c.42.82.69,1.47.8,1.97.14.5.08.89-.2,1.13-.28.27-.8.43-1.56.49-.73.08-1.75.1-3.07.1-1.11,0-1.97,0-2.61-.06-.65-.04-1.15-.12-1.53-.2-.36-.14-.62-.28-.78-.46-.17-.19-.3-.42-.43-.73l-8.58-16.51-8.57,16.51c-.14.31-.31.54-.47.73-.15.18-.42.33-.81.46-.35.09-.86.16-1.52.2-.63.05-1.49.06-2.54.06-1.24,0-2.19-.02-2.87-.1-.66-.07-1.12-.23-1.34-.49-.24-.25-.29-.63-.14-1.13.14-.49.43-1.15.88-1.97l10.97-20.01-10.2-18.77c-.41-.85-.71-1.53-.88-2.02-.14-.51-.08-.89.18-1.11.28-.26.78-.44,1.52-.47.72-.06,1.77-.11,3.1-.11,1.13,0,1.99.03,2.64.07.65.06,1.17.12,1.56.25.37.1.63.23.77.43.15.18.33.43.47.7l8.03,15.15,7.81-15.15c.15-.27.29-.52.43-.7.16-.19.42-.33.74-.43.36-.13.83-.19,1.42-.25.61-.04,1.45-.07,2.5-.07,1.19,0,2.12.05,2.82.11.68.03,1.13.21,1.39.47.26.23.33.62.18,1.11-.12.49-.38,1.17-.78,2.02l-10.2,18.68,10.87,20.1Z"/>
+      <path class="cls-2" d="M188.21,15.7c0,2.57-.4,4.85-1.19,6.83-.81,1.99-1.97,3.65-3.51,5.02-1.53,1.35-3.43,2.36-5.67,3.09-2.21.71-4.84,1.05-7.85,1.05h-3.82v14.6c0,.25-.09.46-.25.64-.15.17-.39.35-.74.45-.35.13-.84.21-1.41.28-.59.08-1.36.1-2.28.1s-1.66-.02-2.26-.1c-.59-.07-1.05-.15-1.42-.28-.35-.11-.6-.28-.74-.45-.14-.19-.2-.39-.2-.64V5.11c0-1.09.28-1.93.85-2.47.58-.57,1.34-.85,2.29-.85h10.8c1.08,0,2.11.06,3.08.14,1,.09,2.17.25,3.55.54,1.36.29,2.74.75,4.14,1.49,1.41.72,2.61,1.67,3.61,2.78.99,1.12,1.73,2.41,2.27,3.95.51,1.47.76,3.16.76,5.01M178.5,16.39c0-1.61-.3-2.93-.88-3.97-.54-1.04-1.25-1.81-2.08-2.31-.82-.49-1.69-.8-2.61-.91-.91-.15-1.82-.22-2.79-.22h-3.96v15.54h4.16c1.5,0,2.74-.21,3.73-.62,1.01-.39,1.84-.95,2.47-1.66.63-.74,1.12-1.59,1.46-2.58.32-1.03.5-2.11.5-3.28"/>
+      <path class="cls-2" d="M227.21,46.3c0,.25-.07.46-.23.64-.15.17-.41.35-.75.45-.36.13-.83.21-1.43.28-.58.08-1.33.12-2.22.12s-1.69-.03-2.31-.12c-.58-.07-1.06-.15-1.4-.28-.35-.11-.58-.28-.76-.45-.14-.19-.21-.39-.21-.64v-18.49h-17.12v18.49c0,.25-.06.46-.22.64-.15.17-.39.35-.74.45-.35.13-.83.21-1.41.28-.6.08-1.36.12-2.27.12s-1.65-.03-2.27-.12c-.59-.07-1.05-.15-1.41-.28-.36-.11-.62-.28-.79-.45-.13-.19-.22-.39-.22-.64V3.06c0-.22.09-.44.22-.62.17-.19.43-.35.79-.46.35-.13.82-.22,1.41-.29.62-.06,1.36-.11,2.27-.11s1.67.05,2.27.11c.57.07,1.05.16,1.41.29.35.11.59.27.74.46.15.18.22.4.22.62v16.81h17.12V3.06c0-.22.08-.44.21-.62.18-.19.41-.35.76-.46.34-.13.82-.22,1.4-.29.62-.06,1.39-.11,2.31-.11s1.64.05,2.22.11c.6.07,1.07.16,1.43.29.34.11.6.27.75.46.16.18.22.4.23.62v43.24Z"/>
+      <path class="cls-2" d="M271.88,44.12c.27.85.46,1.51.52,2.01.08.5-.02.87-.29,1.12-.24.26-.71.36-1.37.42-.68.09-1.57.1-2.73.1-1.22,0-2.16,0-2.83-.06-.67-.03-1.18-.09-1.52-.17-.35-.12-.6-.27-.74-.45-.14-.21-.26-.44-.35-.78l-3.08-9.17h-17.2l-2.91,8.96c-.1.33-.22.62-.38.84-.15.22-.38.39-.74.52-.35.14-.84.21-1.47.25-.61.05-1.42.06-2.43.06-1.09,0-1.92-.02-2.54-.1-.6-.07-1.03-.23-1.27-.49-.24-.27-.33-.67-.25-1.16.08-.49.25-1.16.52-1.97l14.14-40.62c.14-.39.3-.72.48-.95.2-.27.48-.45.89-.57.41-.14,1.01-.23,1.74-.25.72-.04,1.69-.07,2.89-.07,1.39,0,2.5.03,3.33.07.83.02,1.46.11,1.92.25.46.12.78.3.97.57.22.29.4.59.54,1.07l14.16,40.58ZM250.85,10.53h-.04l-6.47,19.45h12.99l-6.49-19.45Z"/>
+      <path class="cls-2" d="M300.59,43.68c0,.72-.02,1.31-.09,1.83-.05.46-.14.85-.24,1.19-.13.31-.3.53-.46.67-.18.14-.38.2-.63.2h-20.98c-.8,0-1.44-.22-1.99-.66-.52-.48-.77-1.22-.77-2.27V3.06c0-.22.06-.44.22-.62.14-.19.41-.35.77-.46.35-.13.82-.22,1.4-.29.62-.06,1.37-.11,2.27-.11s1.67.05,2.27.11c.59.07,1.06.16,1.41.29.36.11.6.27.74.46.17.18.26.4.26.62v36.85h14.39c.24,0,.45.06.63.19.16.13.33.34.46.64.09.3.18.68.24,1.18.07.47.09,1.07.09,1.76"/>
+      <path class="cls-2" d="M37.38,40.8c0,.6-.02,1.13-.07,1.55-.04.44-.1.78-.15,1.09-.1.3-.18.55-.32.77-.12.22-.34.49-.63.78-.28.25-.84.62-1.68,1.05-.8.44-1.81.86-3.01,1.28-1.17.39-2.52.71-4.05.99-1.5.26-3.16.41-4.92.41-3.47,0-6.6-.51-9.38-1.51-2.79-.98-5.16-2.46-7.11-4.45-1.95-1.98-3.45-4.47-4.49-7.43-1.05-2.97-1.57-6.41-1.57-10.35s.58-7.59,1.74-10.67c1.14-3.12,2.74-5.73,4.79-7.86,2.06-2.11,4.53-3.68,7.38-4.8,2.89-1.08,6.07-1.64,9.53-1.64,1.4,0,2.77.11,4.06.33,1.31.22,2.5.5,3.6.86,1.12.36,2.13.75,3,1.2.9.48,1.51.89,1.84,1.23.37.31.6.57.73.79.14.21.23.51.32.83.06.35.12.75.16,1.2.05.46.06,1.04.06,1.73,0,.73-.01,1.36-.06,1.86-.07.51-.15.92-.28,1.25-.12.31-.3.53-.46.69-.21.14-.41.21-.62.21-.41,0-.9-.19-1.5-.63-.6-.42-1.39-.9-2.34-1.41-.94-.54-2.06-1-3.4-1.42-1.29-.45-2.86-.66-4.69-.66-2.01,0-3.8.39-5.4,1.16-1.55.77-2.88,1.84-4.02,3.28-1.09,1.42-1.91,3.13-2.49,5.14-.57,2.03-.87,4.28-.87,6.83,0,2.76.3,5.17.9,7.21.64,2.02,1.5,3.68,2.62,5,1.16,1.3,2.51,2.31,4.1,2.95,1.62.64,3.43.94,5.42.94,1.84,0,3.41-.18,4.73-.58,1.33-.4,2.46-.85,3.4-1.36.96-.48,1.74-.91,2.34-1.3.63-.36,1.1-.57,1.45-.57.26,0,.46.05.62.14.16.1.3.29.39.58.12.29.18.7.25,1.24.05.51.07,1.21.07,2.08"/>
+      <path class="cls-1" d="M61.88.57c-13.67,0-24.77,11.08-24.77,24.76s11.1,24.76,24.77,24.76,24.77-11.09,24.77-24.76S75.57.57,61.88.57M62.08,39.94c-7.98,0-14.46-6.48-14.46-14.46s6.47-14.43,14.46-14.43,14.44,6.46,14.44,14.43-6.46,14.46-14.44,14.46"/>
+      <path class="cls-3" d="M55.28,25.57c0-3.84,3.11-6.96,6.97-6.96s6.97,3.12,6.97,6.96-3.13,6.98-6.97,6.98-6.97-3.13-6.97-6.98"/>
+    </g>
+  </g>
+</svg>
+  </header>
+
+  <section class="reloj">
+    <div class="hora"><span id="hm">--:--</span></div>
+    <div class="fecha" id="fecha"></div>
+  </section>
+
+  <section class="clima">
+    <div class="ciudad"><b>Almería</b><span id="rango"></span></div>
+    <div class="actual">
+      <div>
+        <div class="temp"><span id="temp">--</span><sup>°C</sup></div>
+        <div class="desc" id="desc">Cargando clima…</div>
+      </div>
+      <div class="icono" id="icono"></div>
+    </div>
+    <div class="datos">
+      <span>Sensación <b id="sens">--</b>°</span>
+      <span>Humedad <b id="hum">--</b>%</span>
+      <span>Viento <b id="vie">--</b> km/h</span>
+    </div>
+    <div class="horas" id="horas"></div>
+    <div class="dias" id="dias"></div>
+  </section>
+
+  <section class="noticias">
+    <div class="nt-cab"><b>Últimas noticias</b><span>aenverde.es</span></div>
+    <div class="nt-lista" id="noticias"><div class="nt-vacio">Cargando noticias…</div></div>
+  </section>
+
+  <div class="estado" id="estado"></div>
+</div>
+
+<script>
+const LAT = 36.8381, LON = -2.4597;   // Almería
+const REFRESCO_MIN = 15;              // actualización del clima (minutos)
+const TZ = 'Europe/Madrid';
+
+// Ajuste a la ventana manteniendo 688x1032
+function ajustar(){
+  const s = Math.min(innerWidth/688, innerHeight/1032);
+  document.getElementById('stage').style.transform = `scale(${s})`;
+}
+addEventListener('resize', ajustar); ajustar();
+
+// Reloj
+function reloj(){
+  const now = new Date();
+  document.getElementById('hm').textContent =
+    now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',timeZone:TZ});
+  document.getElementById('fecha').textContent =
+    now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',timeZone:TZ});
+}
+reloj(); setInterval(reloj, 1000);
+
+// Clima (Open-Meteo, sin clave)
+const WMO = {
+  0:['☀️','Despejado'],1:['🌤️','Mayormente despejado'],2:['⛅','Parcialmente nublado'],3:['☁️','Nublado'],
+  45:['🌫️','Niebla'],48:['🌫️','Niebla'],
+  51:['🌦️','Llovizna ligera'],53:['🌦️','Llovizna'],55:['🌦️','Llovizna intensa'],
+  61:['🌧️','Lluvia ligera'],63:['🌧️','Lluvia'],65:['🌧️','Lluvia fuerte'],
+  71:['🌨️','Nieve ligera'],73:['🌨️','Nieve'],75:['🌨️','Nieve fuerte'],
+  80:['🌦️','Chubascos'],81:['🌧️','Chubascos fuertes'],82:['⛈️','Chubascos violentos'],
+  95:['⛈️','Tormenta'],96:['⛈️','Tormenta con granizo'],99:['⛈️','Tormenta con granizo']
+};
+const w = c => WMO[c] || ['🌡️','—'];
+
+async function clima(){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
+    + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
+    + `&hourly=temperature_2m,weather_code`
+    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+    + `&timezone=${encodeURIComponent(TZ)}&forecast_days=4`;
+  try{
+    const r = await fetch(url); if(!r.ok) throw new Error(r.status);
+    const d = await r.json(), c = d.current;
+    const [ico, txt] = w(c.weather_code);
+    document.getElementById('temp').textContent = Math.round(c.temperature_2m);
+    document.getElementById('desc').textContent = txt;
+    document.getElementById('icono').textContent = ico;
+    document.getElementById('sens').textContent = Math.round(c.apparent_temperature);
+    document.getElementById('hum').textContent = Math.round(c.relative_humidity_2m);
+    document.getElementById('vie').textContent = Math.round(c.wind_speed_10m);
+    document.getElementById('rango').innerHTML =
+      `<span class="mn">Mín ${Math.round(d.daily.temperature_2m_min[0])}°</span> · <span class="mx">Máx ${Math.round(d.daily.temperature_2m_max[0])}°</span>`;
+
+    // Próximas 6 franjas (cada 2 h)
+    let i = d.hourly.time.findIndex(t => t > c.time); if(i<0) i = 0;
+    let h = '';
+    for(let k=0;k<6;k++){
+      const j = i + k*2; if(j>=d.hourly.time.length) break;
+      h += `<div class="h"><div>${d.hourly.time[j].slice(11,16)}</div><div class="e">${w(d.hourly.weather_code[j])[0]}</div><div class="t">${Math.round(d.hourly.temperature_2m[j])}°</div></div>`;
+    }
+    document.getElementById('horas').innerHTML = h;
+
+    // Próximos 3 días
+    let dd = '';
+    for(let k=1;k<3;k++){
+      const nom = new Date(d.daily.time[k]+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long'});
+      dd += `<div class="d"><span class="n">${nom}</span><span class="e">${w(d.daily.weather_code[k])[0]}</span>`
+          + `<span class="p">${d.daily.precipitation_probability_max[k] ?? 0}% lluvia</span>`
+          + `<span class="m"><i>${Math.round(d.daily.temperature_2m_min[k])}°</i>${Math.round(d.daily.temperature_2m_max[k])}°</span></div>`;
+    }
+    document.getElementById('dias').innerHTML = dd;
+    document.getElementById('estado').textContent = '';
+  }catch(e){
+    document.getElementById('desc').textContent = 'Sin datos del clima';
+    document.getElementById('estado').textContent = 'No se pudo actualizar. Reintentando…';
+  }
+}
+clima(); setInterval(clima, REFRESCO_MIN*60*1000);
+
+/* ====== NOTICIAS (lectura del RSS del sitio) ====== */
+const FEED_URL = 'https://www.aenverde.es/titulares/feed';
+const FEEDS = [FEED_URL, 'https://www.aenverde.es/feed/'];
+const NUM_NOTICIAS = 3, REFRESCO_NOTICIAS_MIN = 10;
+let feedOk = null, vistas = null;
+
+// Formas de llegar al feed: directa y a través de distintos servicios públicos (por si el navegador bloquea la conexión directa)
+const RUTAS = [
+  ...(location.protocol.startsWith('http') ? [['servidor', u => '/api/noticias']] : []),
+  ['directa',    u => u],
+  ['allorigins', u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)],
+  ['corsproxy',  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u)],
+  ['codetabs',   u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)]
+];
+const decodificar = t => { const e = document.createElement('textarea'); e.innerHTML = t; return e.value.trim(); };
+
+function leerXml(texto){
+  const xml = new DOMParser().parseFromString(texto, 'text/xml');
+  return [...xml.querySelectorAll('item, entry')].map(n => {
+    const q = t => (n.querySelector(t)?.textContent || '').trim();
+    const l = n.querySelector('link');
+    return {
+      id: q('guid') || q('id') || (l?.getAttribute('href') || l?.textContent || '').trim() || q('title'),
+      titulo: decodificar(q('title')),
+      fecha: new Date(q('pubDate') || q('published') || q('updated') || q('date'))
+    };
+  }).filter(x => x.titulo);
+}
+
+async function leerFeed(u, fallos){
+  for(const [nombre, ruta] of RUTAS){
+    try{
+      const r = await fetch(ruta(u), {cache:'no-store'});
+      if(!r.ok){
+        const detalle = nombre === 'servidor' ? (await r.text()).slice(0,160) : '';
+        throw new Error('HTTP ' + r.status + (detalle ? ' – ' + detalle : ''));
+      }
+      const lista = leerXml(await r.text());
+      if(!lista.length) throw new Error('respuesta sin noticias');
+      return lista;
+    }catch(e){ fallos.push(nombre + ': ' + e.message); }
+  }
+  try{   // último recurso: conversor RSS→JSON
+    const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(u));
+    const j = await r.json();
+    if(j.status !== 'ok' || !j.items?.length) throw new Error(j.message || 'sin noticias');
+    return j.items.map(x => ({
+      id: x.guid || x.link || x.title,
+      titulo: decodificar(x.title),
+      fecha: new Date((x.pubDate || '').replace(' ', 'T') + 'Z')
+    }));
+  }catch(e){ fallos.push('rss2json: ' + e.message); }
+  return null;
+}
+
+async function noticias(){
+  let lista = null; const fallos = [];
+  for(const u of (feedOk ? [feedOk] : FEEDS)){
+    lista = await leerFeed(u, u === FEEDS[0] ? fallos : []);
+    if(lista){ feedOk = u; break; }
+  }
+  const caja = document.getElementById('noticias');
+  if(!lista){
+    if(!caja.querySelector('.nt')){
+      caja.innerHTML = '<div class="nt-vacio">No se han podido cargar las noticias.<br><small></small></div>';
+      caja.querySelector('small').textContent = (location.protocol === 'file:' ? 'Abre el dashboard con servidor.py (http://localhost:8000). ' : '') + fallos.join(' · ');
+    }
+    return;
+  }
+  lista.sort((a,b) => (b.fecha||0) - (a.fecha||0));
+  lista = lista.slice(0, NUM_NOTICIAS);
+  const ids = lista.map(x => x.id);
+  caja.innerHTML = lista.map(x => {
+    const nueva = vistas && !vistas.has(x.id);
+    const f = isNaN(x.fecha) ? '' : x.fecha.toLocaleDateString('es-ES',{day:'numeric',month:'short',timeZone:TZ}).replace('.','');
+    return `<div class="nt${nueva?' nueva':''}"><time>${f}</time><span></span></div>`;
+  }).join('');
+  [...caja.querySelectorAll('.nt span')].forEach((el,i) => el.textContent = lista[i].titulo);
+  vistas = new Set([...(vistas||[]), ...ids]);
+}
+noticias(); setInterval(noticias, REFRESCO_NOTICIAS_MIN*60*1000);
+</script>
+</body>
+</html>
